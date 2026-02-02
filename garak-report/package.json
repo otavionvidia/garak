@@ -14,7 +14,8 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "check": "tsc --noEmit",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "prepare": "cd .. && lefthook install -d garak-report || true"
   },
   "dependencies": {
     "@kui/react": "./src/assets/kui-foundations-react-external-0.504.1.tgz",
@@ -40,6 +41,7 @@
     "eslint-plugin-react-refresh": "^0.4.19",
     "globals": "^16.0.0",
     "jsdom": "^26.1.0",
+    "lefthook": "^2.0.16",
     "postcss": "^8.5.3",
     "prettier": "^3.6.2",
     "tailwindcss": "^4.1.7",
