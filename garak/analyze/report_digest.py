@@ -40,13 +40,76 @@ if os.path.isfile(misp_resource_file):
             key, title, descr = line.strip().split("\t")
             tag_descriptions[key] = (title, descr)
 
-# human-readable intent names, keyed by intent code; empty names normalized to None
+# Intent typology, keyed by intent code. Loaded at runtime from the
+# override-aware data path so user-customised trait_typology.json content flows
+# into the digest (and the standalone report) without the frontend needing a
+# bundled copy.
+# - intent_names: name-only lookup, kept for the per-cell "name" field.
+# - intent_typology_table: name + description lookup, used to embed a lean
+#   typology map in the digest (see _collect_intent_typology).
+# Empty names/descriptions are normalized to None.
 intent_typology_file = data_path / "cas" / "trait_typology.json"
 intent_names = {}
+intent_typology_table: dict = {}
 if intent_typology_file.is_file():
     with open(intent_typology_file, "r", encoding="utf-8") as f:
         for code, details in json.load(f).items():
-            intent_names[code] = details.get("name") or None
+            name = details.get("name") or None
+            # Prefer an explicit description; fall back to the imperative stub
+            # CAS probes use, matching the frontend's prior behaviour.
+            descr = (
+                (details.get("descr") or "").strip()
+                or (details.get("default_stub") or "").strip()
+                or None
+            )
+            intent_names[code] = name
+            intent_typology_table[code] = {"name": name, "descr": descr}
+
+
+def _intent_code_ancestors(code: str) -> list:
+    """Return `code` plus the ancestor codes a grouped view rolls it up to.
+
+    Intent codes follow the CTMS scheme: a single-letter category (e.g. "S"),
+    a family of letter + 3 digits (e.g. "S004"), and a leaf appending a suffix
+    (e.g. "S004lewd"). The report's grouped matrix columns key on the family
+    prefix, so family (and category) labels must ship in the digest too even
+    though only leaves are evaluated. Leaf-first order, de-duplicated.
+    """
+    out = [code]
+    family_match = re.match(r"^[A-Za-z]\d{3}", code)
+    if family_match:
+        out.append(family_match.group(0))
+    if code and code[0].isalpha():
+        out.append(code[0])
+    ordered = []
+    seen = set()
+    for c in out:
+        if c not in seen:
+            seen.add(c)
+            ordered.append(c)
+    return ordered
+
+
+def _collect_intent_typology(matrix: dict) -> dict:
+    """Build the lean intent-typology map to embed alongside a matrix.
+
+    Includes every intent code referenced by the matrix plus its family and
+    category ancestors, looked up in ``intent_typology_table``. Codes with no
+    typology entry are skipped (the frontend falls back to the raw code). This
+    keeps the standalone report self-describing without dumping the whole
+    typology table into every digest.
+    """
+    needed = set()
+    for technique_row in matrix.values():
+        for intent in technique_row:
+            if intent == "_summary":
+                continue
+            needed.update(_intent_code_ancestors(intent))
+    return {
+        code: intent_typology_table[code]
+        for code in sorted(needed)
+        if code in intent_typology_table
+    }
 
 # probe tag namespace that defines a technique for the technique_intent_matrix
 TECHNIQUE_TAG_PREFIX = "demon:"
@@ -691,6 +754,13 @@ def build_digest(report_filename: str, config=_config):
     # technique -> intent breakdown, pooled from each eval's intents field
     report_digest["technique_intent_matrix"] = _compute_technique_intent_matrix(
         evals, report_plugin_cache
+    )
+    # Intent labels/descriptions for exactly the codes the matrix references
+    # (plus their family/category ancestors), embedded so the standalone report
+    # can label intents without a bundled taxonomy copy and honours user data
+    # overrides.
+    report_digest["intent_typology"] = _collect_intent_typology(
+        report_digest["technique_intent_matrix"]
     )
 
     return report_digest
