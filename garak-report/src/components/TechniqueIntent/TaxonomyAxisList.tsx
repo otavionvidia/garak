@@ -71,9 +71,9 @@ interface TaxonomyAxisListProps {
   openValue: string;
   /** Notifies the parent when the open primary entry changes. */
   onOpenChange: (value: string) => void;
-  /** Nested-axis key to pre-select inside the open entry (drives notable-pairing jumps). */
+  /** Nested-axis key to pre-select inside the open entry. */
   focusSecondaryKey?: string;
-  /** Bumped on every notable-pairing click so a repeat click re-scrolls to the box. */
+  /** Bumped on repeated external selections to restore focus to the detail box. */
   focusNonce?: number;
   /** Theme mode, forwarded to the inner pairing chart. */
   isDark?: boolean;
@@ -122,11 +122,11 @@ const Stat = ({ label, value }: { label: string; value: string }) => (
  * digest provides a detector count here, so we report how many judges scored
  * the pairing rather than inventing a per-detector breakdown.
  */
-const CellDetail = ({ cell, title }: { cell: MatrixCell; title?: string }) => {
+export const CellDetail = ({ cell, title }: { cell: MatrixCell; title?: string }) => {
   const { getSeverityLabelByLevel, getDefconBadgeColor } = useSeverityColor();
   const defcon = scoreToDefcon(cell.score);
   const hasFailures = cell.score < 1;
-  const failed = Math.max(cell.nEvaluations - cell.passed - cell.nones, 0);
+  const failed = Math.max(cell.nEvaluations - cell.passed, 0);
   const hasPrompts = cell.nAttempts > 0; // older reports omit prompt counts
   return (
     <Panel>
@@ -151,11 +151,11 @@ const CellDetail = ({ cell, title }: { cell: MatrixCell; title?: string }) => {
           </Flex>
           <Text kind="label/regular/sm" className="opacity-60">
             {hasPrompts
-              ? `${pluralize(cell.nAttempts, "prompt")} scored by ${pluralize(
+              ? `${pluralize(cell.nAttempts, "prompt")} · ${pluralize(
                   cell.nDetectors,
                   "detector"
-                )} = ${cell.nEvaluations.toLocaleString()} evaluations.`
-              : `Counts are evaluations — one per prompt scored by each of ${pluralize(
+                )} · ${cell.nEvaluations.toLocaleString()} evaluations.`
+              : `Counts are detector evaluations, pooled across ${pluralize(
                   cell.nDetectors,
                   "detector"
                 )}.`}
@@ -168,11 +168,12 @@ const CellDetail = ({ cell, title }: { cell: MatrixCell; title?: string }) => {
             size="small"
             slotIcon={<ShieldCheck size={20} />}
             slotHeading="No failures recorded"
-            slotSubheading="The target passed every evaluation for this pairing. There are no attempts to inspect."
+            slotSubheading="The target passed every evaluation for this pairing."
           />
         ) : (
           <Text kind="body/regular/md" className="opacity-60">
-            A response counts as a failure when any detector flags it.
+            A failed evaluation means a detector flagged an output. Undetermined results are
+            excluded from the pass rate.
           </Text>
         )}
       </Stack>
@@ -202,10 +203,10 @@ const GroupChildrenChart = ({
   const soleKey = group.cells.length === 1 ? group.cells[0].otherKey : null;
   const [selected, setSelected] = useState<string | null>(initialSelected ?? soleKey);
   const boxRef = useRef<HTMLDivElement>(null);
-  // Only scroll for notable-pairing jumps (never for manual bar clicks), and
+  // Only scroll for pairing jumps (never for manual bar clicks), and
   // scroll once per jump — even a repeat click, since focusNonce changes.
   const scrolledNonce = useRef<number | undefined>(undefined);
-  // A notable-pairing jump can retarget an already-open group's detail.
+  // A pairing jump can retarget an already-open group's detail.
   useEffect(() => {
     if (initialSelected) setSelected(initialSelected);
   }, [initialSelected]);
@@ -245,7 +246,7 @@ const GroupChildrenChart = ({
  * pairings with click-to-detail in a side panel (the same model both axes use).
  * Single-pairing groups use the same chart with their one bar pre-selected.
  */
-const GroupChildren = ({
+export const GroupChildren = ({
   group,
   childNoun,
   isDark,

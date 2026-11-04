@@ -8,7 +8,7 @@
  * @license Apache-2.0
  */
 
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { describe, it, expect, vi } from "vitest";
 import type { ComponentProps } from "react";
 import TaxonomyAxisList from "../TaxonomyAxisList";
@@ -146,8 +146,8 @@ describe("TaxonomyAxisList", () => {
     // techB is a single-child cell with 20 prompts / 3 detectors / 100 evaluations.
     expect(screen.getAllByText("Prompts").length, "detail shows a Prompts stat").toBeGreaterThan(0);
     expect(
-      screen.getByText("20 prompts scored by 3 detectors = 100 evaluations."),
-      "caption spells out prompts × detectors = evaluations"
+      screen.getByText("20 prompts · 3 detectors · 100 evaluations."),
+      "counts are reported without assuming every prompt has the same detector coverage"
     ).toBeInTheDocument();
   });
 
@@ -173,5 +173,26 @@ describe("TaxonomyAxisList", () => {
       screen.getByTestId("status-heading"),
       "filtered-out list shows an empty message"
     ).toHaveTextContent("No techniques match the current filters");
+  });
+
+  it("keeps undetermined results separate from failed evaluations", () => {
+    renderList({
+      view: {
+        ...view,
+        cell: (row, col) => {
+          const value = view.cell(row, col);
+          return value && row === "techB" ? { ...value, nones: 5 } : value;
+        },
+      },
+    });
+    const group = screen.getAllByTestId("accordion-item")[1];
+    expect(
+      within(group).getByText("Failed").parentElement,
+      "100 evaluated minus 40 passed gives 60 failures, regardless of undetermined results"
+    ).toHaveTextContent("Failed60");
+    expect(
+      within(group).getByText("Undetermined").parentElement,
+      "the five undetermined results remain separately disclosed"
+    ).toHaveTextContent("Undetermined5");
   });
 });
