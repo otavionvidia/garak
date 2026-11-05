@@ -5,7 +5,7 @@
 
 /** Element-bound measurement and an optional zoom window; undefined means overview. */
 import { useCallback, useState } from "react";
-import type { MatrixView } from "../types/TechniqueIntent";
+import type { MatrixView } from "../utils/techniqueIntentRollup";
 import type { HeatmapWindow } from "../types/TechniqueIntentHeatmap";
 
 export function useTechniqueIntentHeatmapNavigation(view: MatrixView) {

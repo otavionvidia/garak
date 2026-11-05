@@ -3,7 +3,7 @@
  * @license Apache-2.0
  */
 
-import type { MatrixView } from "../types/TechniqueIntent";
+import type { MatrixView } from "./techniqueIntentRollup";
 import type { HeatmapSelection } from "../types/TechniqueIntentHeatmap";
 import type { HeatmapLayout } from "./techniqueIntentHeatmapLayout";
 

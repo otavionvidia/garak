@@ -4,8 +4,9 @@
  */
 
 /** Compose the heatmap's controls, accessible chart and inline result details. */
+import { useCallback } from "react";
 import { Stack, StatusMessage } from "@kui/react";
-import type { MatrixView } from "../../types/TechniqueIntent";
+import type { MatrixView } from "../../utils/techniqueIntentRollup";
 import type { HeatmapSelection } from "../../types/TechniqueIntentHeatmap";
 import { sameHeatmapSelection } from "../../utils/techniqueIntentHeatmapSelection";
 import { useTechniqueIntentHeatmapOptions } from "../../hooks/useTechniqueIntentHeatmapOptions";
@@ -15,7 +16,6 @@ import Header from "./TechniqueIntentHeatmapHeader";
 import Legend from "./TechniqueIntentHeatmapLegend";
 import Canvas from "./TechniqueIntentHeatmapCanvas";
 import Detail from "./TechniqueIntentHeatmapDetail";
-export type { HeatmapSelection } from "../../types/TechniqueIntentHeatmap";
 interface Props {
   view: MatrixView;
   isDark?: boolean;
@@ -33,8 +33,11 @@ const TechniqueIntentHeatmap = ({
   onToggleDefcon,
 }: Props) => {
   const navigation = useTechniqueIntentHeatmapNavigation(view);
-  const select = (next: HeatmapSelection | null) =>
-    onSelectionChange(sameHeatmapSelection(selection, next) ? null : next);
+  const select = useCallback(
+    (next: HeatmapSelection | null) =>
+      onSelectionChange(sameHeatmapSelection(selection, next) ? null : next),
+    [selection, onSelectionChange]
+  );
   const keyboard = useTechniqueIntentHeatmapKeyboard(view, select, navigation.showColumn);
   const model = useTechniqueIntentHeatmapOptions(view, isDark, {
     selection,

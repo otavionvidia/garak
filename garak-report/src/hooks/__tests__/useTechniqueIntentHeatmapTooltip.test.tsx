@@ -8,7 +8,7 @@ import { render, screen, act } from "@testing-library/react";
 import { describe, it, expect, vi, afterEach } from "vitest";
 import { useTechniqueIntentHeatmapOptions } from "../useTechniqueIntentHeatmapOptions";
 import { buildMatrixView } from "../../utils/techniqueIntentRollup";
-import type { MatrixView } from "../../types/TechniqueIntent";
+import type { MatrixView } from "../../utils/techniqueIntentRollup";
 let model: ReturnType<typeof useTechniqueIntentHeatmapOptions>;
 const attached: HTMLElement[] = [];
 const callback = vi.fn((_: string, content: string | HTMLElement) => {

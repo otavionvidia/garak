@@ -8,7 +8,7 @@ import { useCallback, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import TechniqueIntentTooltip from "../components/TechniqueIntent/TechniqueIntentTooltip";
 import TechniqueIntentAxisTooltip from "../components/TechniqueIntent/TechniqueIntentAxisTooltip";
-import type { MatrixView } from "../types/TechniqueIntent";
+import type { MatrixView } from "../utils/techniqueIntentRollup";
 import type {
   HeatmapSelection,
   TooltipCallback,

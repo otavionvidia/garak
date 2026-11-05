@@ -13,7 +13,8 @@ import type { IntentTypology, TechniqueIntentMatrix } from "../../types/ReportEn
 import { DEFCON_LEVELS } from "../../constants";
 import { buildMatrixView } from "../../utils/techniqueIntentRollup";
 import ErrorBoundary from "../ErrorBoundary";
-import TechniqueIntentHeatmap, { type HeatmapSelection } from "./TechniqueIntentHeatmap";
+import type { HeatmapSelection } from "../../types/TechniqueIntentHeatmap";
+import TechniqueIntentHeatmap from "./TechniqueIntentHeatmap";
 
 /** Props for TechniqueIntentPanel component */
 export interface TechniqueIntentPanelProps {

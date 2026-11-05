@@ -5,7 +5,7 @@
 
 /** One keyboard focus stop navigates cells and the top/left taxonomy headers. */
 import { useId, useMemo, useState, type KeyboardEvent } from "react";
-import type { MatrixView } from "../types/TechniqueIntent";
+import type { MatrixView } from "../utils/techniqueIntentRollup";
 import type { HeatmapCursor, HeatmapSelection } from "../types/TechniqueIntentHeatmap";
 import { cursorSelection } from "../utils/techniqueIntentHeatmapSelection";
 

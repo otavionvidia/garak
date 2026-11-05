@@ -3,11 +3,34 @@
  * @license Apache-2.0
  */
 
-import { view, dispatch, chart } from "./heatmapFixtures";
+import { view, dispatch, chart, events, option } from "./heatmapFixtures";
 import TestHeatmap from "./HeatmapHarness";
-import { render, screen } from "@testing-library/react";
-import { describe, it, expect } from "vitest";
+import { act, render, screen, within } from "@testing-library/react";
+import { describe, it, expect, vi } from "vitest";
 describe("heatmap axis hover", () => {
+  it("keeps chart bindings intact while React updates tooltip content", () => {
+    render(<TestHeatmap view={view} />);
+    const bindings = events;
+    const update = vi.fn();
+    act(() => {
+      option.tooltip.formatter(
+        { data: { value: [0, 0, 0], rowKey: "t1", colKey: "i1" } },
+        "preview",
+        update
+      );
+    });
+    expect(update, "ECharts receives the committed tooltip content").toHaveBeenCalledOnce();
+    expect(
+      within(update.mock.calls[0][1]).getByRole("tooltip", { name: "Pairing preview" })
+    ).toBeDefined();
+    expect(events, "preview content updates do not rebind ECharts events").toBe(bindings);
+    dispatch("click", { componentType: "yAxis", value: "t1" });
+    dispatch("click", { componentType: "yAxis", value: "t1" });
+    expect(
+      screen.queryByRole("button", { name: "Clear selection" }),
+      "the current selection still toggles after tooltip updates"
+    ).not.toBeInTheDocument();
+  });
   it.each([
     ["xAxis", "i2"],
     ["yAxis", "t2"],

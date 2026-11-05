@@ -6,7 +6,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, it, expect } from "vitest";
 import CellDetail from "../TechniqueIntentCellDetail";
-import type { MatrixCell } from "../../../types/TechniqueIntent";
+import type { MatrixCell } from "../../../utils/techniqueIntentRollup";
 const cell: MatrixCell = {
   row: "t",
   col: "i",

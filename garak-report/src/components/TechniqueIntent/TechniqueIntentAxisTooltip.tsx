@@ -4,7 +4,7 @@
  */
 
 import { Badge, Divider, Flex, Stack, Text } from "@kui/react";
-import type { AxisGroup, TaxonomyAxis } from "../../types/TechniqueIntent";
+import type { AxisGroup, TaxonomyAxis } from "../../utils/techniqueIntentRollup";
 import TechniqueIntentTooltipScore from "./TechniqueIntentTooltipScore";
 
 interface TechniqueIntentAxisTooltipProps {

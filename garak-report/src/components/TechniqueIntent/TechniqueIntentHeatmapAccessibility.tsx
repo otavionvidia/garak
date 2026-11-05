@@ -4,7 +4,7 @@
  */
 
 /** Describe the active virtual grid cell without duplicating the whole matrix in the DOM. */
-import type { MatrixView } from "../../types/TechniqueIntent";
+import type { MatrixView } from "../../utils/techniqueIntentRollup";
 import type { HeatmapGroups } from "../../hooks/useTechniqueIntentHeatmapData";
 import type { HeatmapKeyboard } from "../../hooks/useTechniqueIntentHeatmapKeyboard";
 import { formatRate } from "../../utils/formatPercentage";

@@ -4,7 +4,7 @@
  */
 
 import { format } from "echarts";
-import type { MatrixView } from "../types/TechniqueIntent";
+import type { MatrixView } from "./techniqueIntentRollup";
 import type { HeatmapWindow } from "../types/TechniqueIntentHeatmap";
 
 /** Measure full codes and use the smallest non-overlapping label angle. */

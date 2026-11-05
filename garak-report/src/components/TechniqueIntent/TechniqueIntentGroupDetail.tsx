@@ -6,7 +6,7 @@
 /** Pairing chart and selected counts for one technique or intent. */
 import { useState } from "react";
 import { Grid, Stack, Text } from "@kui/react";
-import type { AxisGroup } from "../../types/TechniqueIntent";
+import type { AxisGroup } from "../../utils/techniqueIntentRollup";
 import TaxonomyCellChart from "./TaxonomyCellChart";
 import CellDetail from "./TechniqueIntentCellDetail";
 

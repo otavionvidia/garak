@@ -9,7 +9,7 @@ import { scoreToDefcon } from "../../constants";
 import { formatRate } from "../../utils/formatPercentage";
 import useSeverityColor from "../../hooks/useSeverityColor";
 import DefconBadge from "../DefconBadge";
-import type { MatrixCell } from "../../types/TechniqueIntent";
+import type { MatrixCell } from "../../utils/techniqueIntentRollup";
 const pluralize = (count: number, noun: string) => `${count} ${noun}${count === 1 ? "" : "s"}`;
 
 /** Single labelled figure used in the detail header's stat row. */

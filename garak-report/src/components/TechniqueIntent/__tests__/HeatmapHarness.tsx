@@ -5,7 +5,7 @@
 
 import { useState } from "react";
 import Heatmap from "../TechniqueIntentHeatmap";
-import type { MatrixView } from "../../../types/TechniqueIntent";
+import type { MatrixView } from "../../../utils/techniqueIntentRollup";
 import type { HeatmapSelection } from "../../../types/TechniqueIntentHeatmap";
 const TestHeatmap = ({
   view,

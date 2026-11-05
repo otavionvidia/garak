@@ -5,7 +5,7 @@
 
 /** Compose the matrix's independently memoised data, layout and ECharts options. */
 import { useMemo } from "react";
-import type { MatrixView } from "../types/TechniqueIntent";
+import type { MatrixView } from "../utils/techniqueIntentRollup";
 import type { HeatmapSelection, HeatmapWindow } from "../types/TechniqueIntentHeatmap";
 import { getHeatmapLayout } from "../utils/techniqueIntentHeatmapLayout";
 import { heatmapOutline } from "../utils/techniqueIntentHeatmapGraphics";
@@ -13,7 +13,6 @@ import { heatmapAxes, heatmapVisualMap } from "../utils/techniqueIntentHeatmapAx
 import { heatmapTooltipPosition } from "../utils/techniqueIntentHeatmapTooltipPosition";
 import { useTechniqueIntentHeatmapData } from "./useTechniqueIntentHeatmapData";
 import { useTechniqueIntentHeatmapTooltip } from "./useTechniqueIntentHeatmapTooltip";
-export type { HeatmapCell, HeatmapSelection } from "../types/TechniqueIntentHeatmap";
 
 interface Options extends HeatmapWindow {
   selection?: HeatmapSelection | null;
@@ -80,5 +79,5 @@ export function useTechniqueIntentHeatmapOptions(
     }),
     [view, layout, palette, data, selection, focus, formatters]
   );
-  return { option, ...layout, layout, groups, tooltipPortal: portal };
+  return { option, ...layout, layout, groups, hoverColour: palette.hover, tooltipPortal: portal };
 }

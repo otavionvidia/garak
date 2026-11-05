@@ -5,7 +5,7 @@
 
 /** ECharts axes, colour scale and horizontal navigation for the matrix. */
 import { ABSOLUTE_DEFCON_BOUNDS } from "../constants";
-import type { MatrixView } from "../types/TechniqueIntent";
+import type { MatrixView } from "./techniqueIntentRollup";
 import type { TooltipFormatter } from "../types/TechniqueIntentHeatmap";
 import type { HeatmapLayout } from "./techniqueIntentHeatmapLayout";
 import type { HeatmapPalette } from "../hooks/useTechniqueIntentHeatmapData";

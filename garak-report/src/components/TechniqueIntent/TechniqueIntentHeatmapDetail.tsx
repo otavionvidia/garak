@@ -6,7 +6,7 @@
 /** Persistent selected result, sharing the existing pairing detail presentation. */
 import { useEffect, useRef } from "react";
 import { Button, Flex, Stack, Text } from "@kui/react";
-import type { MatrixView } from "../../types/TechniqueIntent";
+import type { MatrixView } from "../../utils/techniqueIntentRollup";
 import type { HeatmapSelection } from "../../types/TechniqueIntentHeatmap";
 import type { HeatmapGroups } from "../../hooks/useTechniqueIntentHeatmapData";
 import CellDetail from "./TechniqueIntentCellDetail";
