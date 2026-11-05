@@ -115,6 +115,7 @@ function Report({ onThemeChange, currentTheme = "system" }: ReportProps) {
     <ErrorBoundary fallbackMessage="Failed to load technique/intent analysis.">
       <Flex direction="col" style={{ width: "100%" }}>
         <TechniqueIntentPanel
+          key={selectedReport.meta.run_uuid}
           techniqueIntent={selectedReport.technique_intent_matrix}
           intentTypology={selectedReport.intent_typology}
           isDark={isDark}
