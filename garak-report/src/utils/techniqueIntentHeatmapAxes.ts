@@ -16,6 +16,7 @@ export function heatmapAxes(
   palette: HeatmapPalette,
   tooltips: { intent: TooltipFormatter; technique: TooltipFormatter }
 ) {
+  const columnIndices = new Map(view.cols.map((key, index) => [key, index]));
   const axisPointer = {
     show: true,
     type: "shadow",
@@ -44,7 +45,7 @@ export function heatmapAxes(
         lineHeight: layout.labelLineHeight,
         overflow: layout.compactLabels ? undefined : "break",
         color: (key: string) =>
-          Math.floor(view.cols.indexOf(key) / (layout.labelInterval + 1)) % 2 === 0
+          Math.floor((columnIndices.get(key) ?? -1) / (layout.labelInterval + 1)) % 2 === 0
             ? palette.text
             : palette.alternate,
         formatter: (key: string) =>

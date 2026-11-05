@@ -66,9 +66,33 @@ describe("heatmap client previews", () => {
     const point = { data: model.option.series[0].data[0] };
     act(() => model.option.tooltip.formatter(point, "first", callback));
     const host = attached[0];
-    expect(model.option.tooltip.formatter(point, "repeat", callback)).toBe(host);
+    act(() => expect(model.option.tooltip.formatter(point, "repeat", callback)).toBe(host));
     expect(callback, "the second hover needs no new portal commit").toHaveBeenCalledOnce();
     unmount();
     expect(host, "portal content follows the React lifecycle").toBeEmptyDOMElement();
+  });
+  it("keeps the latest hover when returning to a cell before React commits", () => {
+    render(<Preview view={view} />);
+    const [first, second] = model.option.series[0].data;
+    act(() => model.option.tooltip.formatter({ data: first }, "first", callback));
+    const original = screen.getByRole("tooltip").textContent;
+    act(() => {
+      model.option.tooltip.formatter({ data: second }, "second", callback);
+      model.option.tooltip.formatter({ data: first }, "return", callback);
+    });
+    expect(
+      screen.getByRole("tooltip").textContent,
+      "an intermediate hover cannot replace the current pairing"
+    ).toBe(original);
+  });
+  it("delivers pending content using the latest ECharts ticket", () => {
+    render(<Preview view={view} />);
+    const point = { data: model.option.series[0].data[0] };
+    act(() => {
+      model.option.tooltip.formatter(point, "superseded", callback);
+      model.option.tooltip.formatter(point, "latest", callback);
+    });
+    expect(callback, "pending hovers share one portal commit").toHaveBeenCalledOnce();
+    expect(callback.mock.calls[0][0], "ECharts can accept the current request").toBe("latest");
   });
 });

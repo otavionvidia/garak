@@ -9,6 +9,7 @@ import { createPortal } from "react-dom";
 import TechniqueIntentTooltip from "../components/TechniqueIntent/TechniqueIntentTooltip";
 import TechniqueIntentAxisTooltip from "../components/TechniqueIntent/TechniqueIntentAxisTooltip";
 import type { MatrixView } from "../utils/techniqueIntentRollup";
+import { sameHeatmapSelection } from "../utils/techniqueIntentHeatmapSelection";
 import type {
   HeatmapSelection,
   TooltipCallback,
@@ -25,15 +26,14 @@ interface Request {
 export function useTechniqueIntentHeatmapTooltip(view: MatrixView, groups: HeatmapGroups) {
   const [host] = useState(() => document.createElement("div"));
   const [request, setRequest] = useState<Request | null>(null);
-  const committed = useRef<{ key: string; view: MatrixView } | null>(null);
+  const committed = useRef<Request | null>(null);
   const show = useCallback(
     (target: HeatmapSelection, ticket: string, callback: TooltipCallback) => {
-      const key = JSON.stringify(target);
-      if (committed.current?.view === view && committed.current.key === key) return host;
+      // Reuse committed content while letting the latest pending hover win.
       setRequest(previous =>
         previous?.view === view &&
-        previous.ticket === ticket &&
-        JSON.stringify(previous.target) === key
+        sameHeatmapSelection(previous.target, target) &&
+        (previous === committed.current || previous.ticket === ticket)
           ? previous
           : { target, ticket, callback, view }
       );
@@ -43,7 +43,7 @@ export function useTechniqueIntentHeatmapTooltip(view: MatrixView, groups: Heatm
   );
   useLayoutEffect(() => {
     if (!request || request.view !== view) return;
-    committed.current = { key: JSON.stringify(request.target), view };
+    committed.current = request;
     request.callback(request.ticket, host);
   }, [request, view, host]);
   const formatters = useMemo(

@@ -26,7 +26,9 @@ export function getHeatmapLayout(
   const labelGap = 4;
   const labelFont = `${labelFontSize}px sans-serif`;
   const visibleCodes = view.cols.slice(firstCol, firstCol + colCount);
-  const codeRects = visibleCodes.map(key => format.getTextRect(key, labelFont));
+  const codeRects = compactLabels
+    ? visibleCodes.map(key => format.getTextRect(key, labelFont))
+    : [];
   const codeHeight = Math.max(labelFontSize, ...codeRects.map(rect => rect.height));
   const longestCode = Math.max(0, ...codeRects.map(rect => rect.width));
   const labelInterval = compactLabels
@@ -51,12 +53,14 @@ export function getHeatmapLayout(
     }
   }
   const labelWidth = Math.max(80, Math.floor(columnWidth) - 12);
-  const labelLines = Math.max(
-    1,
-    ...visibleCodes.map(
-      key => 1 + Math.ceil(format.getTextRect(view.colLabel(key), labelFont).width / labelWidth)
-    )
-  );
+  const labelLines = compactLabels
+    ? 0
+    : Math.max(
+        1,
+        ...visibleCodes.map(
+          key => 1 + Math.ceil(format.getTextRect(view.colLabel(key), labelFont).width / labelWidth)
+        )
+      );
   const top = compactLabels
     ? Math.ceil(longestCode * Math.sin((labelAngle * Math.PI) / 180) + codeHeight) + 20
     : labelLines * labelLineHeight + 24;
