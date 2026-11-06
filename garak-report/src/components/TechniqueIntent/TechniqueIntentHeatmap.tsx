@@ -21,17 +21,8 @@ interface Props {
   isDark?: boolean;
   selection: HeatmapSelection | null;
   onSelectionChange: (selection: HeatmapSelection | null) => void;
-  selectedDefcons?: number[];
-  onToggleDefcon: (level: number) => void;
 }
-const TechniqueIntentHeatmap = ({
-  view,
-  isDark,
-  selection,
-  onSelectionChange,
-  selectedDefcons,
-  onToggleDefcon,
-}: Props) => {
+const TechniqueIntentHeatmap = ({ view, isDark, selection, onSelectionChange }: Props) => {
   const navigation = useTechniqueIntentHeatmapNavigation(view);
   const select = useCallback(
     (next: HeatmapSelection | null) =>
@@ -41,7 +32,6 @@ const TechniqueIntentHeatmap = ({
   const keyboard = useTechniqueIntentHeatmapKeyboard(view, select, navigation.showColumn);
   const model = useTechniqueIntentHeatmapOptions(view, isDark, {
     selection,
-    selectedDefcons,
     focus: keyboard.focus,
     width: navigation.width,
     ...navigation.matrixWindow,
@@ -58,7 +48,7 @@ const TechniqueIntentHeatmap = ({
         onZoom={direction => navigation.zoom(direction, model.colCount)}
         onReset={navigation.reset}
       />
-      <Legend selectedDefcons={selectedDefcons} onToggleDefcon={onToggleDefcon} />
+      <Legend />
       <Canvas
         view={view}
         model={model}

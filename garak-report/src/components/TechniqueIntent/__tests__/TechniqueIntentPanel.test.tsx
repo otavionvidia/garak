@@ -4,7 +4,7 @@
  */
 
 import { option, focusMatrix as matrix, dispatch } from "./heatmapFixtures";
-import { render, screen, fireEvent, within } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { describe, it, expect } from "vitest";
 import TechniqueIntentPanel from "../TechniqueIntentPanel";
 describe("TechniqueIntentPanel", () => {
@@ -55,52 +55,34 @@ describe("TechniqueIntentPanel", () => {
     ).toBeNull();
   });
 
-  it("focuses risk levels while retaining the default risk-first order", () => {
+  it("shows one numeric legend and retains risk-first ordering without focus controls", () => {
     render(<TechniqueIntentPanel techniqueIntent={matrix} />);
-    const legend = within(screen.getByRole("group", { name: "Pass rate legend and risk focus" }));
+    const legend = within(screen.getByRole("group", { name: "Pass rate legend" }));
     expect(legend.getByText("0%"), "the legend shows the lowest pass rate").toBeVisible();
     expect(legend.getByText("100%"), "the legend shows the highest pass rate").toBeVisible();
+    expect(legend.getByText("Not evaluated"), "missing data has a separate key").toBeVisible();
     expect(
-      legend.getByRole("group", { name: "Focus by DEFCON" }),
-      "risk classification is distinct from the continuous colour scale"
+      legend.getByText("Lower means more failures"),
+      "score direction is explicit"
     ).toBeVisible();
+    expect(screen.getAllByText("Pass rate"), "the metric is explained once").toHaveLength(1);
     expect(
-      screen.queryByRole("radio", { name: "Alphabetical" }),
-      "heatmap sorting has been removed"
+      screen.queryByRole("button", { name: /^DC-/ }),
+      "risk focus has been removed"
     ).toBeNull();
     expect(option.yAxis.data, "the matrix retains its default risk-first order").toEqual([
       "t1",
       "t2",
     ]);
-    fireEvent.click(screen.getByRole("button", { name: /^DC-1 ·/ }));
-    expect(
-      screen.getAllByRole("button", { name: /^DC-1 ·/ }),
-      "one interactive legend replaces duplicate risk controls"
-    ).toHaveLength(1);
-    expect(
-      screen.getByRole("button", { name: /^DC-1 ·/ }),
-      "legend exposes its focus state"
-    ).toHaveAttribute("aria-pressed", "false");
-    const dimmed = option.series[0].data.find(
-      point => point.rowKey === "t1" && point.colKey === "i1"
-    )!;
-    expect(
-      dimmed.itemStyle.opacity,
-      "risk focus dims rather than inventing missing data"
-    ).toBeLessThan(1);
-    expect(
-      screen.getByText(/Summaries include all evaluations/),
-      "the scope of summaries stays explicit"
-    ).toBeVisible();
+    const colours = option.series[0].data.map(point => point.itemStyle.color);
     dispatch("click", {
       componentType: "series",
       data: { rowKey: "t1", colKey: "i1", value: [0, 0, 0] },
     });
     expect(
-      option.series[0].data.find(point => point.rowKey === "t1" && point.colKey === "i1")!.itemStyle
-        .opacity,
-      "selection remains visible while focused"
-    ).toBe(1);
-    expect(screen.getByText("Passed"), "a dimmed pairing still has its real details").toBeVisible();
+      option.series[0].data.map(point => point.itemStyle.color),
+      "selection preserves score colours"
+    ).toEqual(colours);
+    expect(screen.getByText("DC-1"), "DEFCON remains available in details").toBeVisible();
   });
 });

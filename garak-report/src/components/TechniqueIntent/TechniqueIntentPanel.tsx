@@ -1,16 +1,15 @@
 /**
  * @file TechniqueIntentPanel.tsx
- * @description Technique/intent heatmap with inline details and risk focus.
+ * @description Technique/intent heatmap with inline details.
  * @module components/TechniqueIntent
  *
  * @copyright NVIDIA Corporation 2023-2026
  * @license Apache-2.0
  */
 
-import { useCallback, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { StatusMessage } from "@kui/react";
 import type { IntentTypology, TechniqueIntentMatrix } from "../../types/ReportEntry";
-import { DEFCON_LEVELS } from "../../constants";
 import { buildMatrixView } from "../../utils/techniqueIntentRollup";
 import ErrorBoundary from "../ErrorBoundary";
 import type { HeatmapSelection } from "../../types/TechniqueIntentHeatmap";
@@ -37,19 +36,12 @@ const TechniqueIntentPanel = ({
   intentTypology,
   isDark,
 }: TechniqueIntentPanelProps) => {
-  const [selectedDefcons, setSelectedDefcons] = useState<number[]>([...DEFCON_LEVELS]);
   const [selection, setSelection] = useState<HeatmapSelection | null>(null);
   const view = useMemo(
     () => buildMatrixView(techniqueIntent ?? {}, intentTypology),
     [techniqueIntent, intentTypology]
   );
   const hasMatrix = hasEntries(techniqueIntent);
-
-  const toggleDefcon = useCallback((defcon: number) => {
-    setSelectedDefcons(prev =>
-      prev.includes(defcon) ? prev.filter(d => d !== defcon) : [...prev, defcon]
-    );
-  }, []);
 
   if (!hasMatrix) {
     return (
@@ -68,8 +60,6 @@ const TechniqueIntentPanel = ({
         isDark={isDark}
         selection={selection}
         onSelectionChange={setSelection}
-        selectedDefcons={selectedDefcons}
-        onToggleDefcon={toggleDefcon}
       />
     </ErrorBoundary>
   );

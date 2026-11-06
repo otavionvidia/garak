@@ -17,25 +17,18 @@ import { useTechniqueIntentHeatmapTooltip } from "./useTechniqueIntentHeatmapToo
 interface Options extends HeatmapWindow {
   selection?: HeatmapSelection | null;
   focus?: HeatmapSelection | null;
-  selectedDefcons?: number[];
   width?: number;
 }
 export function useTechniqueIntentHeatmapOptions(
   view: MatrixView,
   isDark?: boolean,
-  { selection, focus, selectedDefcons, width = 1200, colSpan, colStart = 0 }: Options = {}
+  { selection, focus, width = 1200, colSpan, colStart = 0 }: Options = {}
 ) {
   const layout = useMemo(
     () => getHeatmapLayout(view, width, { colSpan, colStart }),
     [view, width, colSpan, colStart]
   );
-  const { data, groups, palette } = useTechniqueIntentHeatmapData(
-    view,
-    layout,
-    isDark,
-    selection,
-    selectedDefcons
-  );
+  const { data, groups, palette } = useTechniqueIntentHeatmapData(view, layout, isDark, selection);
   const { formatters, portal } = useTechniqueIntentHeatmapTooltip(view, groups);
   const option = useMemo(
     () => ({

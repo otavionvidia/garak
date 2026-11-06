@@ -4,7 +4,7 @@
  */
 
 /** Compact KUI heading, coverage and chart controls. */
-import { Button, ButtonGroup, Flex, PageHeader, Stack, Text, Tooltip } from "@kui/react";
+import { Button, ButtonGroup, Flex, PageHeader, Text, Tooltip } from "@kui/react";
 import { Info, Minus, Plus } from "lucide-react";
 import { HEATMAP_KEYBOARD_HELP } from "./TechniqueIntentHeatmapAccessibility";
 interface Props {
@@ -82,15 +82,14 @@ const TechniqueIntentHeatmapHeader = ({
       </Flex>
     }
     slotDescription={
-      <Stack gap="density-xs">
-        <Text kind="body/regular/sm" aria-live="polite">
-          {techniques} techniques ·{" "}
-          {count === total
-            ? `${total} intents`
-            : `Intents ${first + 1}–${first + count} of ${total}`}
-        </Text>
-        <Text kind="body/regular/sm">Pass rate · Lower pass rates mean more failures.</Text>
-      </Stack>
+      <Text
+        kind="body/regular/sm"
+        aria-live="polite"
+        style={{ color: "var(--text-color-secondary)" }}
+      >
+        {techniques} techniques ·{" "}
+        {count === total ? `${total} intents` : `Intents ${first + 1}–${first + count} of ${total}`}
+      </Text>
     }
     slotActions={
       <TechniqueIntentHeatmapZoom count={count} total={total} onZoom={onZoom} onReset={onReset} />

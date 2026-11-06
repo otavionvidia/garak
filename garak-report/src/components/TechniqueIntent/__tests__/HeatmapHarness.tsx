@@ -19,7 +19,6 @@ const TestHeatmap = ({
     <Heatmap
       view={view}
       selection={selection}
-      onToggleDefcon={() => {}}
       onSelectionChange={next => {
         setSelection(next);
         onSelect(next);

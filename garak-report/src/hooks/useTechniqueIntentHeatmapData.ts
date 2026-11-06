@@ -3,10 +3,10 @@
  * @license Apache-2.0
  */
 
-/** Keep report summaries independent from selection, zoom and risk focus. */
+/** Keep report summaries independent from selection and zoom. */
 import { useMemo } from "react";
 import { color } from "echarts";
-import { DEFCON_LEVELS, THEME_COLORS, scoreToDefcon } from "../constants";
+import { DEFCON_LEVELS, THEME_COLORS } from "../constants";
 import { formatRate } from "../utils/formatPercentage";
 import { buildAxisGroups } from "../utils/techniqueIntentRollup";
 import { contrastText } from "../utils/techniqueIntentHeatmapGraphics";
@@ -43,8 +43,7 @@ export function useTechniqueIntentHeatmapData(
   view: MatrixView,
   layout: HeatmapLayout,
   isDark?: boolean,
-  selection?: HeatmapSelection | null,
-  selectedDefcons?: number[]
+  selection?: HeatmapSelection | null
 ) {
   const palette = useTechniqueIntentHeatmapPalette(isDark);
   const groups = useMemo(
@@ -60,7 +59,6 @@ export function useTechniqueIntentHeatmapData(
     return view.rows.flatMap((rowKey, y) =>
       columns.map((colKey, index) => {
         const cell = view.cell(rowKey, colKey);
-        const level = cell ? scoreToDefcon(cell.score) : undefined;
         let fill = cell ? fills.get(cell.score) : undefined;
         if (cell && !fill) {
           const colour = color.lerp(cell.score, palette.colours);
@@ -79,8 +77,6 @@ export function useTechniqueIntentHeatmapData(
           colKey,
           itemStyle: {
             color: fill?.colour ?? "transparent",
-            opacity:
-              selected || !level || !selectedDefcons || selectedDefcons.includes(level) ? 1 : 0.15,
             borderColor: cell ? palette.border : palette.quietBorder,
             borderWidth: 0.5,
           },
@@ -95,15 +91,7 @@ export function useTechniqueIntentHeatmapData(
         };
       })
     );
-  }, [
-    view,
-    layout.firstCol,
-    layout.colCount,
-    layout.columnWidth,
-    palette,
-    selection,
-    selectedDefcons,
-  ]);
+  }, [view, layout.firstCol, layout.colCount, layout.columnWidth, palette, selection]);
   return { data, groups, palette };
 }
 export type HeatmapGroups = ReturnType<typeof useTechniqueIntentHeatmapData>["groups"];
