@@ -32,7 +32,7 @@ describe("useTechniqueIntentHeatmapOptions", () => {
     ).toEqual(colours.map(colour => color.parse(colour)));
     expect(data[0].label.color, "dark red supports white text").toBe("#ffffff");
     expect(data[2].label.color, "gold supports black text").toBe("#000000");
-    expect(data[4].label.color, "deep blue supports white text").toBe("#ffffff");
+    expect(data[4].label.color, "deep green supports white text").toBe("#ffffff");
     expect(result.current.option.visualMap.type, "ECharts uses the same continuous scale").toBe(
       "continuous"
     );

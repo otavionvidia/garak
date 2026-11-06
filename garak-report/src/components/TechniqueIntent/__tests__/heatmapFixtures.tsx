@@ -13,8 +13,8 @@ const tokens = {
   "--color-red-600": "#c21e1e",
   "--color-yellow-400": "#df6500",
   "--color-yellow-200": "#f9c500",
-  "--color-blue-300": "#10b1fb",
-  "--color-blue-600": "#0060c7",
+  "--color-green-300": "#76b900",
+  "--color-green-600": "#327100",
 };
 beforeEach(() => {
   for (const [name, value] of Object.entries(tokens))
