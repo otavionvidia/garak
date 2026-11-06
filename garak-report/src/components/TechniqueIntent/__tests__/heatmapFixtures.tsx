@@ -4,11 +4,25 @@
  */
 
 import { act } from "@testing-library/react";
-import { vi } from "vitest";
+import { afterEach, beforeEach, vi } from "vitest";
 import { setPlatformAPI, type ECharts, type ECElementEvent } from "echarts";
 import { buildMatrixView } from "../../../utils/techniqueIntentRollup";
 import type { useTechniqueIntentHeatmapOptions } from "../../../hooks/useTechniqueIntentHeatmapOptions";
 import type { TechniqueIntentMatrix } from "../../../types/ReportEntry";
+const tokens = {
+  "--color-red-600": "#c21e1e",
+  "--color-yellow-400": "#df6500",
+  "--color-yellow-200": "#f9c500",
+  "--color-blue-300": "#10b1fb",
+  "--color-blue-600": "#0060c7",
+};
+beforeEach(() => {
+  for (const [name, value] of Object.entries(tokens))
+    document.documentElement.style.setProperty(name, value);
+});
+afterEach(() => {
+  for (const name of Object.keys(tokens)) document.documentElement.style.removeProperty(name);
+});
 setPlatformAPI({ measureText: text => ({ width: String(text).length * 7 }) });
 export const chart = {
   setOption: vi.fn(),

@@ -4,7 +4,6 @@
  */
 
 /** ECharts axes, colour scale and horizontal navigation for the matrix. */
-import { ABSOLUTE_DEFCON_BOUNDS } from "../constants";
 import type { MatrixView } from "./techniqueIntentRollup";
 import type { TooltipFormatter } from "../types/TechniqueIntentHeatmap";
 import type { HeatmapLayout } from "./techniqueIntentHeatmapLayout";
@@ -92,22 +91,13 @@ export function heatmapAxes(
   };
 }
 export function heatmapVisualMap(colours: string[]) {
-  const bounds = [
-    0,
-    ABSOLUTE_DEFCON_BOUNDS.TERRIBLE,
-    ABSOLUTE_DEFCON_BOUNDS.BELOW_AVG,
-    ABSOLUTE_DEFCON_BOUNDS.ABOVE_AVG,
-    ABSOLUTE_DEFCON_BOUNDS.EXCELLENT,
-  ];
   return {
     show: false,
-    type: "piecewise",
+    type: "continuous",
+    min: 0,
+    max: 1,
     dimension: 2,
-    pieces: bounds.map((gte, index) => ({
-      gte,
-      ...(index < 4 ? { lt: bounds[index + 1] } : { lte: 1 }),
-      color: colours[index],
-    })),
+    inRange: { color: colours },
     outOfRange: { color: "transparent" },
   };
 }

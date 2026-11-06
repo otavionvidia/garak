@@ -4,7 +4,7 @@
  */
 
 import { option, focusMatrix as matrix, dispatch } from "./heatmapFixtures";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen, fireEvent, within } from "@testing-library/react";
 import { describe, it, expect } from "vitest";
 import TechniqueIntentPanel from "../TechniqueIntentPanel";
 describe("TechniqueIntentPanel", () => {
@@ -57,6 +57,13 @@ describe("TechniqueIntentPanel", () => {
 
   it("focuses risk levels while retaining the default risk-first order", () => {
     render(<TechniqueIntentPanel techniqueIntent={matrix} />);
+    const legend = within(screen.getByRole("group", { name: "Pass rate legend and risk focus" }));
+    expect(legend.getByText("0%"), "the legend shows the lowest pass rate").toBeVisible();
+    expect(legend.getByText("100%"), "the legend shows the highest pass rate").toBeVisible();
+    expect(
+      legend.getByRole("group", { name: "Focus by DEFCON" }),
+      "risk classification is distinct from the continuous colour scale"
+    ).toBeVisible();
     expect(
       screen.queryByRole("radio", { name: "Alphabetical" }),
       "heatmap sorting has been removed"

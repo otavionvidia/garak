@@ -5,6 +5,7 @@
 
 /** Keep report summaries independent from selection, zoom and risk focus. */
 import { useMemo } from "react";
+import { color } from "echarts";
 import { DEFCON_LEVELS, THEME_COLORS, scoreToDefcon } from "../constants";
 import { formatRate } from "../utils/formatPercentage";
 import { buildAxisGroups } from "../utils/techniqueIntentRollup";
@@ -15,19 +16,18 @@ import type { HeatmapLayout } from "../utils/techniqueIntentHeatmapLayout";
 import useSeverityColor from "./useSeverityColor";
 
 function useTechniqueIntentHeatmapPalette(isDark?: boolean) {
-  const { getDefconColor } = useSeverityColor();
+  const { getRiskRampColor } = useSeverityColor();
   return useMemo(() => {
     const theme = getComputedStyle(document.documentElement);
     const text = isDark ? THEME_COLORS.text.dark : THEME_COLORS.text.light;
     const border = isDark ? THEME_COLORS.chart.splitLine.dark : THEME_COLORS.chart.splitLine.light;
     const token = (name: string, fallback: string) =>
       theme.getPropertyValue(name).trim() || fallback;
-    const colours = DEFCON_LEVELS.map(getDefconColor);
+    const colours = DEFCON_LEVELS.map(getRiskRampColor);
     return {
       text,
       border,
       colours,
-      labelColours: colours.map(contrastText),
       alternate: token(isDark ? "--color-gray-300" : "--color-gray-600", text),
       quietBorder: token(
         isDark ? "--color-translucent-white-100" : "--color-translucent-black-100",
@@ -35,7 +35,7 @@ function useTechniqueIntentHeatmapPalette(isDark?: boolean) {
       ),
       hover: token("--background-color-interaction-hover", isDark ? "#ffffff1a" : "#0000000d"),
     };
-  }, [isDark, getDefconColor]);
+  }, [isDark, getRiskRampColor]);
 }
 export type HeatmapPalette = ReturnType<typeof useTechniqueIntentHeatmapPalette>;
 
@@ -56,10 +56,17 @@ export function useTechniqueIntentHeatmapData(
   );
   const data = useMemo(() => {
     const columns = view.cols.slice(layout.firstCol, layout.firstCol + layout.colCount);
+    const fills = new Map<number, { colour: string; label: string }>();
     return view.rows.flatMap((rowKey, y) =>
       columns.map((colKey, index) => {
         const cell = view.cell(rowKey, colKey);
         const level = cell ? scoreToDefcon(cell.score) : undefined;
+        let fill = cell ? fills.get(cell.score) : undefined;
+        if (cell && !fill) {
+          const colour = color.lerp(cell.score, palette.colours);
+          fill = { colour, label: contrastText(colour) };
+          fills.set(cell.score, fill);
+        }
         const selected =
           selection?.axis === "cell"
             ? selection.technique === rowKey && selection.intent === colKey
@@ -71,7 +78,7 @@ export function useTechniqueIntentHeatmapData(
           rowKey,
           colKey,
           itemStyle: {
-            color: level ? palette.colours[level - 1] : "transparent",
+            color: fill?.colour ?? "transparent",
             opacity:
               selected || !level || !selectedDefcons || selectedDefcons.includes(level) ? 1 : 0.15,
             borderColor: cell ? palette.border : palette.quietBorder,
@@ -80,7 +87,7 @@ export function useTechniqueIntentHeatmapData(
           label: {
             show: layout.columnWidth >= 52,
             formatter: cell ? formatRate(cell.score) : "—",
-            color: level ? palette.labelColours[level - 1] : palette.text,
+            color: fill?.label ?? palette.text,
             opacity: cell ? 1 : 0.35,
             fontSize: 12,
             fontWeight: selected ? "bold" : "normal",

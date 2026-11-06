@@ -6,13 +6,14 @@
 import type { MatrixView } from "./techniqueIntentRollup";
 import type { HeatmapSelection } from "../types/TechniqueIntentHeatmap";
 import type { HeatmapLayout } from "./techniqueIntentHeatmapLayout";
+import { color } from "echarts";
 
 /** Chooses black or white text for contrast against a resolved KUI colour. */
-export const contrastText = (hex: string): string => {
-  const channels = hex.replace("#", "").match(/.{2}/g);
-  if (channels?.length !== 3) return "#ffffff";
-  const [r, g, b] = channels.map(channel => {
-    const value = parseInt(channel, 16) / 255;
+export const contrastText = (colour: string): string => {
+  const channels = color.parse(colour);
+  if (!channels) return "#ffffff";
+  const [r, g, b] = channels.slice(0, 3).map(channel => {
+    const value = channel / 255;
     return value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4;
   });
   return 0.2126 * r + 0.7152 * g + 0.0722 * b > 0.179 ? "#000000" : "#ffffff";

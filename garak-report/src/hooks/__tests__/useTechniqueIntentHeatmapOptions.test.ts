@@ -5,7 +5,7 @@
 
 import { colours, counts, view } from "./heatmapFixtures";
 import { renderHook } from "@testing-library/react";
-import { init, setPlatformAPI } from "echarts";
+import { color, init, setPlatformAPI } from "echarts";
 import { describe, it, expect } from "vitest";
 import { useTechniqueIntentHeatmapOptions } from "../useTechniqueIntentHeatmapOptions";
 import { buildMatrixView } from "../../utils/techniqueIntentRollup";
@@ -20,15 +20,45 @@ describe("useTechniqueIntentHeatmapOptions", () => {
     expect(cells[3].itemStyle.color, "untested cells have no risk colour").toBe("transparent");
   });
 
-  it("maps boundary scores to the existing Garak severity palette", () => {
-    const boundaryView = buildMatrixView({
-      t: Object.fromEntries([0, 0.05, 0.4, 0.8, 0.99].map((s, i) => [`i${i}`, counts(s)])),
+  it("interpolates pass rates across the existing KUI risk ramp", () => {
+    const scaleView = buildMatrixView({
+      t: Object.fromEntries([0, 0.25, 0.5, 0.75, 1].map((s, i) => [`i${i}`, counts(s)])),
     });
-    const { result } = renderHook(() => useTechniqueIntentHeatmapOptions(boundaryView));
+    const { result } = renderHook(() => useTechniqueIntentHeatmapOptions(scaleView));
+    const data = result.current.option.series[0].data;
     expect(
-      result.current.option.series[0].data.map(c => c.itemStyle.color),
-      "the heatmap uses the same DEFCON boundaries and colours as bars"
-    ).toEqual(colours.slice(1));
+      data.map(cell => color.parse(cell.itemStyle.color)),
+      "the full pass-rate scale uses KUI colour stops"
+    ).toEqual(colours.map(colour => color.parse(colour)));
+    expect(data[0].label.color, "dark red supports white text").toBe("#ffffff");
+    expect(data[2].label.color, "gold supports black text").toBe("#000000");
+    expect(data[4].label.color, "deep blue supports white text").toBe("#ffffff");
+    expect(result.current.option.visualMap.type, "ECharts uses the same continuous scale").toBe(
+      "continuous"
+    );
+  });
+
+  it.each([0.05, 0.4, 0.8, 0.99])("has no colour jump at DEFCON boundary %s", boundary => {
+    const adjacent = buildMatrixView({
+      t: { below: counts(boundary - 0.001), above: counts(boundary + 0.001) },
+    });
+    const { result } = renderHook(() => useTechniqueIntentHeatmapOptions(adjacent));
+    const [below, above] = result.current.option.series[0].data.map(
+      cell => color.parse(cell.itemStyle.color)!
+    );
+    expect(
+      Math.max(...below.slice(0, 3).map((channel, i) => Math.abs(channel - above[i]))),
+      "nearby percentages stay visually close across risk classifications"
+    ).toBeLessThanOrEqual(3);
+  });
+
+  it("distinguishes scores within the same DEFCON band", () => {
+    const sameBand = buildMatrixView({ t: { low: counts(0.1), high: counts(0.3) } });
+    const { result } = renderHook(() => useTechniqueIntentHeatmapOptions(sameBand));
+    const [low, high] = result.current.option.series[0].data;
+    expect(low.itemStyle.color, "fill reflects the score rather than its band").not.toBe(
+      high.itemStyle.color
+    );
   });
 
   it("retains raw axis keys while formatting readable labels", () => {
@@ -73,7 +103,7 @@ describe("useTechniqueIntentHeatmapOptions", () => {
       const svg = chart.renderToSVGString();
       expect(svg, "ECharts renders an explicit untested tile").toContain("—");
       expect(svg, "zero pass rates remain visible").toContain("0%");
-      expect(svg, "known failures use the shared critical colour").toContain(colours[1]);
+      expect(svg, "zero pass rate uses the KUI red endpoint").toContain("rgb(194,30,30)");
     } finally {
       chart.dispose();
     }

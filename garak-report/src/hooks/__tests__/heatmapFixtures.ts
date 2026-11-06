@@ -2,11 +2,11 @@ import { setPlatformAPI } from "echarts";
 import { vi } from "vitest";
 import { buildMatrixView } from "../../utils/techniqueIntentRollup";
 setPlatformAPI({ measureText: text => ({ width: String(text).length * 7 }) });
-export const colours = ["", "#961515", "#df6500", "#008af9", "#327100", "#139a86"];
+export const colours = ["#c21e1e", "#df6500", "#f9c500", "#10b1fb", "#0060c7"];
 vi.mock("../useSeverityColor", () => ({
   default: () => ({
-    getDefconColor: (level: number) =>
-      ["", "#961515", "#df6500", "#008af9", "#327100", "#139a86"][level],
+    getRiskRampColor: (level: number) =>
+      ["#c21e1e", "#df6500", "#f9c500", "#10b1fb", "#0060c7"][level - 1],
   }),
 }));
 export const counts = (score: number | null) => ({

@@ -43,7 +43,7 @@ export const CSS_COLOR_VARS = {
     default: "--color-gray-200",
   },
   /**
-   * Colorblind-safe risk ramp (DC-1 worst → DC-5 best), modeled on ColorBrewer
+   * Warm-to-cool score ramp (0% worst → 100% best), modelled on ColorBrewer
    * "RdYlBu": a warm→cool walk red → orange → gold → light-blue → deep-blue.
    * Deliberately avoids the red↔green pairing (the most common confusion for
    * deuteranopia/protanopia) while keeping the intuitive "red = danger" anchor.
@@ -53,9 +53,9 @@ export const CSS_COLOR_VARS = {
    * so an earlier `--color-orange-*`/`--color-amber-*` ramp silently fell back to
    * Tailwind's web colors, which clashed with KUI's blues/reds. KUI's `yellow`
    * ramp is itself warm (gold `yellow-200` → orange `yellow-400`), so the warm
-   * half is drawn from it rather than a separate orange hue. Used for the
-   * sequential technique/intent heatmap + breakdown bars only (badges/
-   * ColorLegend keep the categorical `defcon` palette).
+   * half is drawn from it rather than a separate orange hue. The heatmap
+   * interpolates these stops evenly across 0–100% pass rate. Badges and
+   * breakdown bars retain their categorical palettes.
    */
   riskRamp: {
     1: "--color-red-600", // deep red
